@@ -1,0 +1,233 @@
+import random, time
+import pymorphy3    # pip install pymorphy3
+'''
+Описание граммем и падежей
+https://pymorphy2.readthedocs.io/en/stable/user/grammemes.html
+'''
+
+class Hero():
+    def __init__(self, name, hp, damage, armor, xp, weapon):
+        self.name = name
+        self.hp = hp
+        self.damage = damage
+        self.armor = armor
+        self.xp = xp
+        self.weapon = weapon
+
+    def info(self):
+        print(f'* {self.name} *->  Уровень: {self.xp}  Атака: {self.damage}  Броня: {self.armor}  Здоровье: {self.hp}')
+
+    def set_skills(self):
+        self.xp += 1
+        self.damage += 2*(self.xp-1)
+        self.hp += 5*(self.xp-1)
+
+    def battle(self, enemy):
+        while self.hp > 0 and enemy.hp > 0:
+            self.attack(enemy)
+            if enemy.hp > 0:
+                enemy.attack(self)
+        if self.hp > 0:
+            print(f'{self.name} одержал верх в этой нелёгкой схватке...' )
+        else:
+            print(f"{self.name} пал в нелёгком бою.")
+
+class Player(Hero):
+    def hello(self):
+        print(f"Верхом на коне появляется доблестный воин {self.name}")
+
+    def attack(self, enemy):
+        print("*** Удар --->")
+        print(f"  {self.name} наносит сокрушительный удар ", morph.parse(enemy.name)[0].inflect({'datv'})[0] , "используя", self.weapon,'...')
+        enemy.armor -= self.damage+self.xp
+        if enemy.armor < 0:
+            enemy.hp += enemy.armor
+            enemy.armor = 0
+        if enemy.hp < 0:
+            enemy.hp = 0
+        print('  ',enemy.name, "пошатнулся.")
+        print("    Уровень брони", morph.parse(enemy.name)[0].inflect({'gent'})[0] , "упал до", enemy.armor,", а его здоровье составляет", enemy.hp)
+
+class Archer(Hero):
+    def hello(self):
+        print("Новый герой!!! На горизонте появился меткий стрелок", self.name)
+
+    def attack(self, enemy):
+        print("Удар--->")
+        print('  ',self.name, "совершает точный выстрел по", morph.parse(enemy.name)[0].inflect({'datv'})[0] , "из своего лука")
+        enemy.armor -= self.damage+self.xp
+        if enemy.armor < 0:
+            enemy.hp += enemy.armor
+            enemy.armor = 0
+        if enemy.hp < 0:
+            enemy.hp = 0
+            print('  ',enemy.name,'не смог подняться после меткого попадания.')
+        else:
+            print('  ',enemy.name, "упал на землю, но, собрав свои силы, смог подняться на ноги.")
+            print("    Уровень брони", morph.parse(enemy.name)[0].inflect({'gent'})[0] , "упал до", enemy.armor,", а его здоровье составляет", enemy.hp)
+
+class Swordsman(Hero):
+    def hello(self):
+        print("Новый герой! На горизонте появился бравый мечник", self.name)
+
+    def attack(self, enemy):
+        print("Удар--->")
+        print('  ',self.name, "наносит рассекающий удар", morph.parse(enemy.name)[0].inflect({'datv'})[0] , "своим мечом...")
+        enemy.armor -= self.damage+self.xp
+        if enemy.armor < 0:
+            enemy.hp += enemy.armor
+            enemy.armor = 0
+        if enemy.hp < 0:
+            enemy.hp = 0
+            print('  ',enemy.name,'не смог подняться после такого удара.')
+        else:
+            print('  ',enemy.name, "получил удар, но собрался и встал.")
+            print("    Уровень брони", morph.parse(enemy.name)[0].inflect({'gent'})[0] , "упал до", enemy.armor,", а его здоровье составляет", enemy.hp)
+
+class Bandit(Hero):
+    def hello(self):
+        print("Новый противник! Из кустов внезапно выскакивает", self.name)
+
+    def attack(self, enemy):
+        print("Удар--->")
+        print('  ',self.name, "наносит сокрушительный удар", morph.parse(enemy.name)[0].inflect({'datv'})[0] , "своей дубиной...")
+        enemy.armor -= self.damage+self.xp
+        if enemy.armor < 0:
+            enemy.hp += enemy.armor
+            enemy.armor = 0
+        else:
+            print("  Доспехи выдержали удар.", enemy.name, "разозлился ещё больше.")
+        if enemy.hp < 0:
+            enemy.hp = 0
+            print('  ',enemy.name,'не смог подняться после такого удара.')
+        else:
+            print('  ',enemy.name, "упал на землю, но собрав свои силы поднялся на ноги.")
+            print("    Уровень брони", morph.parse(enemy.name)[0].inflect({'gent'})[0] , "упал до", enemy.armor, ", а его здоровье составляет", enemy.hp)
+
+def set_level(level):
+    if level<5:
+        print('\n-------- Уровень',level,'--------')
+    if level==1:
+        return 1,""
+    elif level==2:
+        return 2,"archer"
+    elif level==3:
+        return 2,""
+    elif  level==4:
+        return  4,"swordsman"
+    else:                       
+        return -1,''            
+
+def strike(f,e):
+    print('Друзья вступают в схатку с врагами...')
+    while len(f)>0 and len(e)>0:
+        i = 0                               
+        while i<len(f):                 
+            if len(e)>0:                      
+                x=random.randint(0,len(e)-1) 
+                f[i].attack(e[x])
+                e[x].info()                 
+                if f[i].hp<=0:             
+                    f.remove(f[i])         
+                if e[x].hp<=0:              
+                    e.remove(e[x])         
+            else:                           
+                return -1                  
+            i += 1                           
+        i = 0                                
+        while i<len(e):                           
+            if len(f)>0:                   
+                x = random.randint(0, len(f)-1)  
+                e[i].attack(f[x])
+                f[x].info()                 
+                if e[i].hp <= 0:            
+                    e.remove(e[i])          
+                if f[x].hp <= 0:            
+                    f.remove(f[x])              
+            else:                           
+                return -1                   
+            i += 1                           
+    time.sleep(1)
+
+
+frends = []
+bandits = []
+game=True
+level=0
+morph = pymorphy3.MorphAnalyzer(lang='ru')
+
+knight = Player("Рыцарь", 100, 30, 50, 1, "меч")
+frends.append(knight)
+swordsman = Swordsman("Мечник", 60, 15, 30, 1, "меч")
+archer = Archer("Лучник", 50, 25, 40, 1, "лук")
+
+for bandit in range(10):
+    bandit = Bandit("Разбойник", random.randint(10,50),random.randint(10,40),
+                    random.randint(15,30), random.randint(1,2),
+                    random.choice(["дубинка", "кинжал", "нож"]))
+    bandits.append(bandit)
+random.shuffle(bandits)
+
+knight.hello()
+knight.info()
+
+print(knight.name, "отправляется в путь. На опушке леса ему повстречался", bandits[0].name)
+bandits[0].info()
+
+# Первая битва
+print("Начинается битва...")
+if random.randint(0,1) == 0:
+    knight.battle(bandits[0])
+else:
+    bandits[0].battle(knight)
+if knight.hp > 0:
+    knight.set_skills()         
+    print(knight.name,"получил опыт в сражении и повысил свой уровень.\nПосле короткой передышки он восстановил здоровье.")
+    knight.info()
+    level+=1
+    print('Перед смертью бандит поведал',knight.name,'тайну спрятанных сокровищ.') #развить сюжет
+    print('Наш герой отправляется на поиски приключений...')
+else:
+    print(knight.name, "проиграл эту битву.")
+    game = False
+print('-'*50)#
+while game:
+    enemy_count,friend_name=set_level(level)
+    enemys=[]
+    if friend_name=='archer':
+        archer.hello()
+        frends.append(archer)
+    if friend_name=='swordsman':
+        swordsman.hello()
+        frends.append(swordsman)
+    for i in range(enemy_count):
+        x = random.randint(0,len(bandits)-1)
+        bandits[x].info()
+        enemys.append(bandits[x])
+    if len(enemys)>0:
+        if random.randint(0,1)==0:
+            strike(frends,enemys)
+        else:
+            strike(enemys,frends)
+        for frend in frends:
+            frend.set_skills()
+
+        #knight.set_skills() чтобы уровень повышал только главный герой
+        if len(frends)>0 and knight in frends and enemy_count!=-1:
+            print(" Друзья получили опыт в сражении и повысили свои уровни.\nПосле короткой передышки они восстановили здоровье.")
+            for frend in frends:
+                frend.info()
+            level+=1
+        else:
+            if not knight in frends:
+                print(knight.name,'пал в неравной схватке.')
+            game=False
+    else:
+        game =False
+
+    
+print("#"*50,'\nПриключение окончено.')        
+if len(frends)>0 and knight in frends:           
+    print('Все враги повержены!!!') 
+else:                                                       
+    print('Враги оказались сильнее!!!')
